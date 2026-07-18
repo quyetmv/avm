@@ -1,0 +1,10 @@
+[project]
+name = "ansible-9-env"
+version = "0.1.0"
+description = "Ansible 9 environment (ansible-core 2.16)"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "ansible==9.0.1",
+    "ansible-core==2.16.0",
+    "Jinja2==3.1.4",
+]
