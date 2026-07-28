@@ -26,10 +26,27 @@ done
 
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" &> /dev/null && pwd)"
 
-if [ -z "$1" ]; then
-    echo "Error: Please specify an Ansible version: 5, 6, 7, 8, 9, 10"
-    echo "Usage: use_ansible.sh <version>"
-    [ "$SOURCED" -eq 1 ] && return 1 2>/dev/null || exit 1
+if [ -z "$1" ] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]] || [[ "$1" == "help" ]]; then
+    echo "Ansible Version Manager (avm)"
+    echo ""
+    echo "Usage:"
+    echo "  avm <version>        Start a new shell with the specified Ansible version"
+    echo "  source avm <version> Change the current shell's environment without starting a subshell"
+    echo ""
+    echo "Available versions:"
+    echo "  5, 6, 7, 8, 9, 10"
+    echo ""
+    echo "Examples:"
+    echo "  avm 6               # Starts a subshell with Ansible 6 activated"
+    echo "  source avm 10       # Activates Ansible 10 directly in the current shell"
+    
+    if [ -z "$1" ]; then
+        # If no arguments were provided, exit with an error code
+        [ "$SOURCED" -eq 1 ] && return 1 2>/dev/null || exit 1
+    else
+        # If explicitly requested help, exit gracefully
+        [ "$SOURCED" -eq 1 ] && return 0 2>/dev/null || exit 0
+    fi
 fi
 
 VERSION=$1
