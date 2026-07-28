@@ -1,6 +1,15 @@
 #!/bin/bash
 # Usage: source use_ansible.sh <version>
 
+# Check if the script is being sourced
+(return 0 2>/dev/null) && SOURCED=1 || SOURCED=0
+if [ "$SOURCED" -eq 0 ]; then
+    echo "Error: This script MUST be sourced to change your current shell's environment."
+    echo "Please run it as: source ${0} <version>"
+    echo "Do NOT use 'bash ${0} <version>'."
+    exit 1
+fi
+
 # Define script directory relative to where it was sourced.
 # BASH_SOURCE is unset when sourced from zsh, so fall back to zsh's %N.
 if [ -n "${BASH_SOURCE:-}" ]; then
