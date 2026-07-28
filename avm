@@ -69,6 +69,36 @@ if [ "$SOURCED" -eq 0 ]; then
     echo "Starting a new shell session with Ansible $VERSION."
     echo "Type 'exit' to leave this environment."
     echo "--------------------------------------------------------"
-    # Execute user's default shell
-    exec "${SHELL:-bash}"
+    
+    # Execute user's default shell but ensure venv is activated AFTER their rc files
+    CURRENT_SHELL="${SHELL:-bash}"
+    if [[ "$CURRENT_SHELL" == *zsh ]]; then
+        TMP_ZDOTDIR=$(mktemp -d)
+        cat <<EOF > "$TMP_ZDOTDIR/.zshrc"
+# Source original user config
+if [ -f "$HOME/.zshrc" ]; then
+    # ZDOTDIR might affect inside scripts, so restore it for the inner source
+    export ZDOTDIR="$HOME"
+    source "$HOME/.zshrc"
+fi
+# Activate environment
+source "$TARGET_DIR/.venv/bin/activate"
+# Cleanup temporary dir
+rm -rf "$TMP_ZDOTDIR"
+EOF
+        ZDOTDIR="$TMP_ZDOTDIR" exec "$CURRENT_SHELL"
+    elif [[ "$CURRENT_SHELL" == *bash ]]; then
+        TMP_RC=$(mktemp)
+        cat <<EOF > "$TMP_RC"
+if [ -f "$HOME/.bashrc" ]; then
+    source "$HOME/.bashrc"
+fi
+source "$TARGET_DIR/.venv/bin/activate"
+rm -f "$TMP_RC"
+EOF
+        exec "$CURRENT_SHELL" --rcfile "$TMP_RC"
+    else
+        # Fallback for other shells
+        exec "$CURRENT_SHELL"
+    fi
 fi
