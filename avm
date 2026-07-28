@@ -13,6 +13,17 @@ elif [ -n "${ZSH_VERSION:-}" ]; then
 else
     SCRIPT_PATH="$0"
 fi
+
+# Follow symlinks to find the real path
+while [ -L "$SCRIPT_PATH" ]; do
+    TARGET=$(readlink "$SCRIPT_PATH")
+    if [[ $TARGET == /* ]]; then
+        SCRIPT_PATH="$TARGET"
+    else
+        SCRIPT_PATH="$(dirname "$SCRIPT_PATH")/$TARGET"
+    fi
+done
+
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" &> /dev/null && pwd)"
 
 if [ -z "$1" ]; then

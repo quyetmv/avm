@@ -20,36 +20,21 @@ done
 echo "----------------------------------------"
 echo "All environments setup complete!"
 
-# Set up the shell function for easy access across environments
+# Create a symlink to /usr/local/bin/avm for easy global access
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-USE_ANSIBLE_SCRIPT="$SCRIPT_DIR/use_ansible.sh"
-
-add_to_rc() {
-    local rc_file="$1"
-    if [ -f "$rc_file" ]; then
-        if ! grep -q "function use_ansible()" "$rc_file"; then
-            echo "" >> "$rc_file"
-            echo "# Utility to activate Ansible environments (added by ansible-version/setup_all.sh)" >> "$rc_file"
-            echo "function use_ansible() {" >> "$rc_file"
-            echo "  source \"$USE_ANSIBLE_SCRIPT\" \"\$1\"" >> "$rc_file"
-            echo "}" >> "$rc_file"
-            echo "Installed use_ansible function to $rc_file"
-        else
-            # Try to update the path in case the repo was moved or cloned elsewhere
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                sed -i '' "s|source \".*/use_ansible.sh\"|source \"$USE_ANSIBLE_SCRIPT\"|g" "$rc_file"
-            else
-                sed -i "s|source \".*/use_ansible.sh\"|source \"$USE_ANSIBLE_SCRIPT\"|g" "$rc_file"
-            fi
-            echo "Updated use_ansible path in $rc_file"
-        fi
-    fi
-}
-
-add_to_rc "$HOME/.bashrc"
-add_to_rc "$HOME/.zshrc"
+AVM_SCRIPT="$SCRIPT_DIR/avm"
 
 echo "----------------------------------------"
-echo "To use an environment, you can now run:"
-echo "  use_ansible <version>"
-echo "(Note: You may need to run 'source ~/.bashrc' or 'source ~/.zshrc' first if this is a new installation)"
+echo "Setting up avm executable in /usr/local/bin..."
+echo "This may require your sudo password."
+sudo ln -sf "$AVM_SCRIPT" /usr/local/bin/avm
+
+if [ $? -eq 0 ]; then
+    echo "Successfully linked avm to /usr/local/bin/avm"
+    echo "----------------------------------------"
+    echo "To use an environment, you can now run:"
+    echo "  avm <version>"
+else
+    echo "Failed to link avm. Please run this command manually:"
+    echo "  sudo ln -sf $AVM_SCRIPT /usr/local/bin/avm"
+fi
