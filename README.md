@@ -4,9 +4,9 @@ This repository provides an automated, structured way to manage and switch betwe
 
 ## Repository Structure
 
-- `ansible-[5-10]/`: Each folder corresponds to a major Ansible release. It contains a `pyproject.toml` file that specifies the exact versions of `ansible`, `ansible-core`, and `Jinja2`, along with the required Python version constraints.
-- `setup_all.sh`: A shell script that automatically iterates through all version directories and runs `uv sync` to install dependencies in isolated `.venv` environments.
-- `use_ansible.sh`: A utility script used to quickly switch your current shell to a specific Ansible version's virtual environment.
+- `ansible-[5-10]/`: Each folder corresponds to a major Ansible release. It contains a `pyproject.toml` file that specifies the exact versions of `ansible`, `ansible-core`, and other necessary libraries, along with the required Python version constraints.
+- `setup_all.sh`: A shell script that automatically iterates through all version directories, runs `uv sync` in parallel to install dependencies in isolated `.venv` environments, and creates a symlink for the `avm` command in `/usr/local/bin`.
+- `avm`: A utility script (Ansible Version Manager) used to quickly switch your shell to a specific Ansible version's virtual environment.
 
 ## Prerequisites
 
@@ -15,30 +15,37 @@ This repository provides an automated, structured way to manage and switch betwe
 
 ## Setup
 
-To install all Ansible environments, simply run:
+To install all Ansible environments and configure the `avm` command globally, run:
 
 ```bash
 ./setup_all.sh
 ```
 
-This will create a `.venv` folder inside each `ansible-*` directory and install the exact pinned versions.
+This script will:
+1. Create a `.venv` folder inside each `ansible-*` directory and install the exact pinned versions in parallel.
+2. Link the `avm` utility to `/usr/local/bin/avm` (which may prompt for your `sudo` password).
 
 ## Usage
 
-To switch to a specific version of Ansible, **source** the `use_ansible.sh` script and pass the version number (5, 6, 7, 8, 9, or 10) as the argument:
+You can use the `avm` command from anywhere in your terminal. There are two ways to switch versions:
+
+### 1. Launch a Subshell (Recommended)
+This method starts a new interactive shell session with the requested Ansible version activated. It safely isolates the environment and guarantees correct `$PATH` priority.
 
 ```bash
-# Example: Switch to Ansible 10
-source use_ansible.sh 10
-
-# Example: Switch to Ansible 7
-source use_ansible.sh 7
+# Example: Start a subshell with Ansible 6
+avm 6
 ```
+To exit the virtual environment and return to your original shell, simply type `exit`.
 
-> **Note:** You must use `source` (hoặc `.`) instead of running it directly as `./use_ansible.sh`. This allows the script to modify the `$PATH` of your current shell.
-
-To exit the virtual environment and return to your system's default environment, run:
+### 2. Modify Current Shell
+If you prefer to change the current shell's environment directly, you must use `source`:
 
 ```bash
-deactivate
+# Example: Activate Ansible 10 in the current shell
+source avm 10
 ```
+To exit this environment later, run `deactivate`.
+
+### Help
+Run `avm -h` or `avm help` to see a quick reference of available commands and versions.
