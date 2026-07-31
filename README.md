@@ -49,3 +49,19 @@ To exit this environment later, run `deactivate`.
 
 ### Help
 Run `avm -h` or `avm help` to see a quick reference of available commands and versions.
+
+## Updating Dependencies
+
+If someone adds new libraries to a `pyproject.toml` file (and pushes to the repository), you can pull the latest code and synchronize your local virtual environments by re-running the setup script:
+
+```bash
+git pull
+./setup_all.sh
+```
+
+Because the script uses `uv sync` under the hood, it will incredibly quickly detect the changes in `pyproject.toml` and download only the new libraries, keeping your `.venv` perfectly up to date. Alternatively, to sync a single environment:
+
+```bash
+cd ansible-5
+uv sync
+```
