@@ -37,10 +37,21 @@ AVM_SCRIPT="$SCRIPT_DIR/avm"
 
 echo "----------------------------------------"
 echo "Setting up avm executable in /usr/local/bin..."
-echo "This may require your sudo password."
-sudo ln -sf "$AVM_SCRIPT" /usr/local/bin/avm
 
-if [ $? -eq 0 ]; then
+if [ -w "/usr/local/bin" ]; then
+    ln -sf "$AVM_SCRIPT" /usr/local/bin/avm
+    LINK_SUCCESS=$?
+else
+    echo "This may require your sudo password."
+    if command -v sudo >/dev/null 2>&1; then
+        sudo ln -sf "$AVM_SCRIPT" /usr/local/bin/avm
+        LINK_SUCCESS=$?
+    else
+        LINK_SUCCESS=1
+    fi
+fi
+
+if [ $LINK_SUCCESS -eq 0 ]; then
     echo "Successfully linked avm to /usr/local/bin/avm"
     echo "----------------------------------------"
     echo "To use an environment, you can now run:"
